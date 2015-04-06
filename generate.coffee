@@ -19,67 +19,26 @@ vm.runInNewContext coffeeMode, CodeMirror: CodeMirror
 
 # style definitions for markdown
 styles =
-  # h1:
-  #   font: 'Times-Roman'
-  #   fontSize: 25
-  #   padding: 15
-  # h2:
-  #   font: 'Times-Roman'
-  #   fontSize: 18
-  #   padding: 10
-  # h3:
-  #   font: 'Times-Roman'
-  #   fontSize: 18
-  #   padding: 10
-  meta:
+  default:
     font: 'Times-Roman'
     fontSize: 12
     lineGap: 24
     align: 'left'
+  meta:
     indent: 0
   title:
-    font: 'Times-Roman'
-    fontSize: 12
-    lineGap: 24
     align: 'center'
   para:
-    font: 'Times-Roman'
-    fontSize: 12
-    lineGap: 24
-    align: 'left'
-    indent: 72
-    # padding: 10
-  # code:
-  #   font: 'Times-Roman'
-  #   fontSize: 9
-  # code_block:
-  #   padding: 10
-  #   background: '#2c2c2c'
-  # inlinecode:
-  #   font: 'Times-Roman'
-  #   fontSize: 10
-  # listitem:
-  #   font: 'Times-Roman'
-  #   fontSize: 10
-  #   padding: 6
-  # link:
-  #   font: 'Times-Roman'
-  #   fontSize: 10
-  #   color: 'blue'
-  #   underline: true
-  # example:
-  #   font: 'Times-Roman'
-  #   fontSize: 9
-  #   color: 'black'
-  #   padding: 10
+    indent: 72/2
+  blockquote:
+    indent: 0
+    color: 'red'
+    font: 'Times-Italic'
+    marginLeft: 72
   em:
     font: 'Times-Italic'
-    align: 'left'
   strong:
     font: 'Times-Bold'
-    align: 'left'
-  # u:
-  #   underline: true
 
 # syntax highlighting colors
 # based on Github's theme
@@ -120,6 +79,7 @@ class Node
       @text = tree
       return
 
+    # console.dir tree
     @type = tree.shift()
     @attrs = {}
 
@@ -130,24 +90,26 @@ class Node
     @content = while tree.length
       new Node tree.shift()
 
+    # console.log "type =", @type
+
     switch @type
       when 'header'
         @type = 'h' + @attrs.level
 
-      when 'code_block'
-        # use code mirror to syntax highlight the code block
-        code = @content[0].text
-        @content = []
-        CodeMirror.runMode code, 'coffeescript', (text, style) =>
-          color = colors[style] or colors.default
-          opts =
-            color: color
-            continued: text isnt '\n'
+      # when 'code_block'
+      #   # use code mirror to syntax highlight the code block
+      #   code = @content[0].text
+      #   @content = []
+      #   CodeMirror.runMode code, 'coffeescript', (text, style) =>
+      #     color = colors[style] or colors.default
+      #     opts =
+      #       color: color
+      #       continued: text isnt '\n'
 
-          @content.push new Node ['code', opts, text]
+      #     @content.push new Node ['code', opts, text]
 
-        @content[@content.length - 1]?.attrs.continued = false
-        codeBlocks.push code
+      #   @content[@content.length - 1]?.attrs.continued = false
+      #   codeBlocks.push code
 
       when 'img'
         # images are used to generate inline example output
@@ -158,7 +120,9 @@ class Node
         @code = coffee.compile code if code
         @height = +@attrs.title or 0
 
-    @style = styles[@type] or styles.para
+    @style = _.extend({}, styles.default, styles[@type])
+    # @style.continued = @attrs.continued if @attrs.continued?
+    # console.log @style
 
   # sets the styles on the document for this node
   setStyle: (doc) ->
@@ -168,45 +132,25 @@ class Node
     if @style.fontSize
       doc.fontSize @style.fontSize
 
-    if @style.color or @attrs.color
-      doc.fillColor @style.color or @attrs.color
+    if @style.color
+      doc.fillColor @style.color
     else
       doc.fillColor 'black'
 
-    options = {}
-    options.lineGap = @style.lineGap || 24
-    options.align = @style.align
-    options.indent = @style.indent
-    # options.paragraphGap = 24
-    options.link  = @attrs.href or false # override continued link
-    options.continued = @attrs.continued if @attrs.continued?
-    return options
+    # options = _.extend({}, @style)
+    # # options.lineGap   = @style.lineGap
+    # # options.align     = @style.align
+    # # options.indent    = @style.indent
+    # # options.link    = @attrs.href or false # override continued link
+    # options.continued = @attrs.continued if @attrs.continued?
+    # console.log "options =", options
+    # return options
+    null
 
   # renders this node and its subnodes to the document
   render: (doc, continued = false) ->
+    console.log "rendering node: ", @
     switch @type
-      when 'example'
-        @setStyle doc
-
-        # translate all points in the example code to
-        # the current point in the document
-        doc.moveDown()
-        doc.save()
-        doc.translate(doc.x, doc.y)
-        x = doc.x
-        y = doc.y
-        doc.x = doc.y = 0
-
-        # run the example code with the document
-        vm.runInNewContext @code,
-          doc: doc
-          lorem: lorem
-
-        # restore points and styles
-        y += doc.y
-        doc.restore()
-        doc.x = x
-        doc.y = y + @height
       when 'hr'
         doc.addPage()
       else
@@ -214,25 +158,31 @@ class Node
         for fragment, index in @content
           if fragment.type is 'text'
             # add a new page for each heading, unless it follows another heading
-            if @type in ['h1', 'h2'] and lastType? and lastType isnt 'h1'
-              doc.addPage()
+            # if @type in ['h1', 'h2'] and lastType? and lastType isnt 'h1'
+            #   doc.addPage()
 
             # set styles and whether this fragment is continued (for rich text wrapping)
-            options = @setStyle doc
-            options.continued ?= continued or index < @content.length - 1
+            @setStyle doc
+            # @style.continued ?= continued or index < @content.length - 1
+            # @style.continued = continued
 
             # remove newlines unless this is code
-            unless @type is 'code'
-              fragment.text = fragment.text.replace(/[\r\n]\s*/g, ' ')
+            # unless @type is 'code'
+            #   fragment.text = fragment.text.replace(/[\r\n]\s*/g, ' ')
 
-            doc.text fragment.text, options
+            # console.log "rendering text. continued =", continued, 'attrs.continued =', @attrs.continued
+            doc.text fragment.text, _.extend({}, @style, {continued: continued or index < @content.length - 1})
           else
+            console.log "rendering fragment #{fragment.type}"
             fragment.render doc, index < @content.length - 1 and @type isnt 'bulletlist'
+            # fragment.render doc, fragment.type == "para"
 
           lastType = @type
 
-    if @style.padding
-      doc.y += @style.padding
+    if @style.marginTop
+      doc.y += @style.marginTop
+    # if @style.marginLeft
+    #   doc.x += @style.marginLeft
 
 # reads and renders a markdown/literate coffeescript file to the document
 render = (doc, filename) ->
@@ -259,20 +209,21 @@ render = (doc, filename) ->
       value = meta[2]
       metadata[key] = value
     else
-      body += line
+      body += line + "\n"
 
   metadata.lastName ||= metadata.author?.split(" ").last()
   # console.log metadata
 
   # add header
-  doc.text(metadata.author, styles.meta)
-  doc.text(metadata.instructor, styles.meta)
-  doc.text(metadata.course, styles.meta)
-  doc.text(metadata.date, styles.meta)
-  doc.text(metadata.title, styles.title)
+  doc.text(metadata.author,     _.extend({}, styles.default, styles.meta))
+  doc.text(metadata.instructor, _.extend({}, styles.default, styles.meta))
+  doc.text(metadata.course,     _.extend({}, styles.default, styles.meta))
+  doc.text(metadata.date,       _.extend({}, styles.default, styles.meta))
+  doc.text(metadata.title,      _.extend({}, styles.default, styles.title))
 
   tree = md.parse body
-  tree.shift()
+  console.log tree
+  tree.shift() # ignore 'markdown' first element
 
   while tree.length
     node = new Node tree.shift()
@@ -292,30 +243,28 @@ render = (doc, filename) ->
   doc
 
 # renders the title page of the guide
-renderTitlePage = (doc) ->
-  title = 'PDFKit Guide'
-  author = 'By Devon Govett'
-  version = 'Version ' + require('./package.json').version
+# renderTitlePage = (doc) ->
+#   title = 'PDFKit Guide'
+#   author = 'By Devon Govett'
+#   version = 'Version ' + require('./package.json').version
 
-  doc.font 'fonts/AlegreyaSans-Light.ttf', 60
-  doc.y = doc.page.height / 2 - doc.currentLineHeight()
-  doc.text title, align: 'center'
-  w = doc.widthOfString(title)
+#   doc.font 'fonts/AlegreyaSans-Light.ttf', 60
+#   doc.y = doc.page.height / 2 - doc.currentLineHeight()
+#   doc.text title, align: 'center'
+#   w = doc.widthOfString(title)
 
-  doc.fontSize 20
-  doc.y -= 10
-  doc.text author,
-    align: 'center'
-    indent: w - doc.widthOfString(author)
+#   doc.fontSize 20
+#   doc.y -= 10
+#   doc.text author,
+#     align: 'center'
+#     indent: w - doc.widthOfString(author)
 
-  doc.font styles.para.font, 10
-  doc.text version,
-    align: 'center'
-    indent: w - doc.widthOfString(version)
+#   doc.font styles.para.font, 10
+#   doc.text version,
+#     align: 'center'
+#     indent: w - doc.widthOfString(version)
 
-  doc.addPage()
-
-renderHeader = (doc) ->
+#   doc.addPage()
 
 do ->
   doc = new PDFDocument
