@@ -1,6 +1,7 @@
 # Todo
 
-* italic
+* new paragraphs
 * blockquotes
+* headings
 * works cited page
-* citations
+* citations?
