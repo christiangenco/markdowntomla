@@ -189,46 +189,23 @@ class Node
     if @style.marginLeft
       doc.x -= @style.marginLeft
 
+addPageNum = (doc, name) ->
+  range = doc.bufferedPageRange() # => { start: 0, count: 2 }
+
+  # todo: make more generic "draw text" function that sets the document properities based on provided styles
+  doc.font styles.default.font
+  for i in [range.start...range.start + range.count]
+    doc.switchToPage(i)
+    doc.y = 72/2
+    doc.x = 72
+    doc.text "#{name} #{i + 1}", _.extend({}, styles.default, {align: 'right'})
+
 # reads and renders a markdown/literate coffeescript file to the document
-render = (doc, filename) ->
+render = (doc, tree) ->
   doc.font 'Times-Roman'
   doc.fontSize 12
 
   codeBlocks = []
-  content = fs.readFileSync(filename, 'utf8')
-
-  body = ""
-
-  metadata_pattern = /// ^
-    ([\w.-]+) # key
-    \:\       # colon
-    \s*       # optional whitespace
-    (.+)      # value
-  $///
-
-  metadata = {}
-
-  for line in content.split("\n")
-    if meta = line.match(metadata_pattern)
-      key = meta[1]
-      value = meta[2]
-      metadata[key] = value
-    else
-      body += line + "\n"
-
-  metadata.lastName ||= metadata.author?.split(" ").last()
-  # console.log metadata
-
-  # add header
-  doc.text(metadata.author,     _.extend({}, styles.default, styles.meta))
-  doc.text(metadata.instructor, _.extend({}, styles.default, styles.meta))
-  doc.text(metadata.course,     _.extend({}, styles.default, styles.meta))
-  doc.text(metadata.date,       _.extend({}, styles.default, styles.meta))
-  doc.text(metadata.title,      _.extend({}, styles.default, styles.title))
-
-  tree = md.parse body
-  console.log tree
-  tree.shift() # ignore 'markdown' first element
 
   onWorksCited = false
   while tree.length
@@ -243,18 +220,6 @@ render = (doc, filename) ->
 
     node.render(doc)
 
-  # add page numbers
-  range = doc.bufferedPageRange() # => { start: 0, count: 2 }
-
-  # todo: make more generic "draw text" function that sets the document properities based on provided styles
-  doc.font styles.default.font
-  for i in [range.start...range.start + range.count]
-    doc.switchToPage(i)
-    doc.y = 72/2
-    doc.x = 72
-    doc.text "#{metadata.lastName} #{i + 1}", _.extend({}, styles.default, {align: 'right'})
-
-  doc.flushPages()
   doc
 
 # renders the title page of the guide
@@ -281,11 +246,58 @@ render = (doc, filename) ->
 
 #   doc.addPage()
 
+extractMetadata = (text) ->
+  body = ""
+  metadata = {}
+
+  metadata_pattern = /// ^
+    ([\w.-]+) # key
+    \:\       # colon
+    \s*       # optional whitespace
+    (.+)      # value
+  $///
+
+  for line in text.split("\n")
+    if meta = line.match(metadata_pattern)
+      key = meta[1]
+      value = meta[2]
+      metadata[key] = value
+    else
+      body += line + "\n"
+
+  {metadata: metadata, body: body}
+
 do ->
+  filename = "paper.md"
+  content  = fs.readFileSync(filename, 'utf8')
+  content  = extractMetadata(content)
+  body     = content.body
+  metadata = content.metadata
+
+  tree = md.parse body
+  tree.shift() # ignore 'markdown' first element
+
+  metadata.lastName ||= metadata.author?.split(" ").last()
+
   doc = new PDFDocument
     bufferPages: true
 
-  doc.pipe fs.createWriteStream('guide.pdf')
-  render doc, 'test.coffee.md'
+  doc.info.Title    = metadata.title
+  doc.info.Author   = metadata.author
+  doc.info.Creator = "markdowntomla by christian.gen.co"
+
+  # add header
+  doc.font 'Times-Roman'
+  doc.fontSize 12
+  doc.text(metadata.author,     _.extend({}, styles.default, styles.meta))
+  doc.text(metadata.instructor, _.extend({}, styles.default, styles.meta))
+  doc.text(metadata.course,     _.extend({}, styles.default, styles.meta))
+  doc.text(metadata.date,       _.extend({}, styles.default, styles.meta))
+  doc.text(metadata.title,      _.extend({}, styles.default, styles.title))
+
+  doc.pipe fs.createWriteStream("#{metadata.title} by #{metadata.author}.pdf")
+  render doc, tree
+  addPageNum(doc, metadata.lastName)
+  doc.flushPages()
 
   doc.end()
