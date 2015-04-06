@@ -39,6 +39,23 @@ styles =
     font: 'Times-Italic'
   strong:
     font: 'Times-Bold'
+  h1:
+    font: 'Times-Bold'
+  h2:
+    font: 'Times-Italic'
+  h3:
+    font: 'Times-Bold'
+    align: 'center'
+  h4:
+    font: 'Times-Italic'
+    align: 'center'
+  h5:
+    underline: true
+  citationHeader:
+    align: 'center'
+  citation:
+    indent: -72/2
+    marginLeft: 72/2
 
 # syntax highlighting colors
 # based on Github's theme
@@ -79,24 +96,11 @@ class Node
       @text = tree
       return
 
-    # console.dir tree
     @type = tree.shift()
-    # @attrs = {}
-    @style = _.extend({}, styles.default, styles[@type])
+    @attrs = {}
 
     if typeof tree[0] is 'object' and not Array.isArray tree[0]
       @attrs = tree.shift()
-
-    # parse sub nodes
-    @content = while tree.length
-      child = new Node tree.shift()
-      # blockquotes have an embedded paragraph; make sure the inner paragraph doesn't re-define
-      # its indentation
-      child.style?.indent = @style.indent if @style.indent?
-      child
-
-    console.log "content =", @content
-    # console.log "type =", @type
 
     switch @type
       when 'header'
@@ -125,6 +129,20 @@ class Node
         code = codeBlocks[@attrs.alt]
         @code = coffee.compile code if code
         @height = +@attrs.title or 0
+
+    @style = _.extend({}, styles.default, styles[@type])
+
+    # parse sub nodes
+    @content = while tree.length
+      child = new Node tree.shift()
+      # blockquotes have an embedded paragraph; make sure the inner paragraph doesn't re-define
+      # its indentation
+      child.style?.indent = @style.indent if @style.indent?
+      child
+
+    console.log "content =", @content
+    # console.log "type =", @type
+
 
   # sets the styles on the document for this node
   setStyle: (doc) ->
@@ -212,19 +230,29 @@ render = (doc, filename) ->
   console.log tree
   tree.shift() # ignore 'markdown' first element
 
+  onWorksCited = false
   while tree.length
-    node = new Node tree.shift()
+    node = new Node(tree.shift())
+    console.log "node =", node
+    if node.type == "h1" && node.content?.first()?.text?.toLowerCase() == "works cited"
+      onWorksCited = true
+      node.style = _.extend({}, styles.default, styles.citationHeader)
+
+    if onWorksCited && node.type == "para"
+      node.style = _.extend({}, styles.default, styles.citation)
+
     node.render(doc)
 
   # add page numbers
   range = doc.bufferedPageRange() # => { start: 0, count: 2 }
 
+  # todo: make more generic "draw text" function that sets the document properities based on provided styles
+  doc.font styles.default.font
   for i in [range.start...range.start + range.count]
     doc.switchToPage(i)
     doc.y = 72/2
     doc.x = 72
-    doc.text "#{metadata.lastName} #{i + 1}",
-      align: 'right'
+    doc.text "#{metadata.lastName} #{i + 1}", _.extend({}, styles.default, {align: 'right'})
 
   doc.flushPages()
   doc
