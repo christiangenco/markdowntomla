@@ -137,16 +137,6 @@ class Node
     else
       doc.fillColor 'black'
 
-    # options = _.extend({}, @style)
-    # # options.lineGap   = @style.lineGap
-    # # options.align     = @style.align
-    # # options.indent    = @style.indent
-    # # options.link    = @attrs.href or false # override continued link
-    # options.continued = @attrs.continued if @attrs.continued?
-    # console.log "options =", options
-    # return options
-    null
-
   # renders this node and its subnodes to the document
   render: (doc, continued = false) ->
     console.log "rendering node: ", @
@@ -157,14 +147,7 @@ class Node
         # loop through subnodes and render them
         for fragment, index in @content
           if fragment.type is 'text'
-            # add a new page for each heading, unless it follows another heading
-            # if @type in ['h1', 'h2'] and lastType? and lastType isnt 'h1'
-            #   doc.addPage()
-
-            # set styles and whether this fragment is continued (for rich text wrapping)
             @setStyle doc
-            # @style.continued ?= continued or index < @content.length - 1
-            # @style.continued = continued
 
             # remove newlines unless this is code
             # unless @type is 'code'
@@ -175,7 +158,6 @@ class Node
           else
             console.log "rendering fragment #{fragment.type}"
             fragment.render doc, index < @content.length - 1 and @type isnt 'bulletlist'
-            # fragment.render doc, fragment.type == "para"
 
           lastType = @type
 
