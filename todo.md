@@ -1,6 +1,6 @@
 # Todo
 
-* bold/italic/underline
+* italic
 * blockquotes
 * works cited page
 * citations
