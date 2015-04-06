@@ -32,9 +32,9 @@ styles =
     indent: 72/2
   blockquote:
     indent: 0
+    marginLeft: 72
     color: 'red'
     font: 'Times-Italic'
-    marginLeft: 72
   em:
     font: 'Times-Italic'
   strong:
@@ -81,15 +81,21 @@ class Node
 
     # console.dir tree
     @type = tree.shift()
-    @attrs = {}
+    # @attrs = {}
+    @style = _.extend({}, styles.default, styles[@type])
 
     if typeof tree[0] is 'object' and not Array.isArray tree[0]
       @attrs = tree.shift()
 
     # parse sub nodes
     @content = while tree.length
-      new Node tree.shift()
+      child = new Node tree.shift()
+      # blockquotes have an embedded paragraph; make sure the inner paragraph doesn't re-define
+      # its indentation
+      child.style?.indent = @style.indent if @style.indent?
+      child
 
+    console.log "content =", @content
     # console.log "type =", @type
 
     switch @type
@@ -120,10 +126,6 @@ class Node
         @code = coffee.compile code if code
         @height = +@attrs.title or 0
 
-    @style = _.extend({}, styles.default, styles[@type])
-    # @style.continued = @attrs.continued if @attrs.continued?
-    # console.log @style
-
   # sets the styles on the document for this node
   setStyle: (doc) ->
     if @style.font
@@ -139,7 +141,10 @@ class Node
 
   # renders this node and its subnodes to the document
   render: (doc, continued = false) ->
-    console.log "rendering node: ", @
+    # console.log "rendering node: ", @
+    if @style.marginLeft
+      doc.x += @style.marginLeft
+
     switch @type
       when 'hr'
         doc.addPage()
@@ -161,10 +166,10 @@ class Node
 
           lastType = @type
 
-    if @style.marginTop
-      doc.y += @style.marginTop
-    # if @style.marginLeft
-    #   doc.x += @style.marginLeft
+    if @style.marginBottom
+      doc.y += @style.marginBottom
+    if @style.marginLeft
+      doc.x -= @style.marginLeft
 
 # reads and renders a markdown/literate coffeescript file to the document
 render = (doc, filename) ->
