@@ -1,21 +1,13 @@
-fs = require 'fs'
-_ = require 'underscore'
-vm = require 'vm'
-md = require('markdown').markdown
-coffee = require 'coffee-script'
-CodeMirror = require 'codemirror/addon/runmode/runmode.node'
+_           = require 'underscore'
+md          = require('markdown').markdown
+coffee      = require 'coffee-script'
 PDFDocument = require 'pdfkit'
 
 Array::first ?= -> @[0]
 
 Array::last ?= -> @[@length - 1]
 
-process.chdir(__dirname)
-
-# setup code mirror coffeescript mode
-filename = require.resolve('codemirror/mode/coffeescript/coffeescript')
-coffeeMode = fs.readFileSync filename, 'utf8'
-vm.runInNewContext coffeeMode, CodeMirror: CodeMirror
+# process.chdir(__dirname)
 
 # style definitions for markdown
 styles =
@@ -246,7 +238,7 @@ render = (doc, tree) ->
 
 #   doc.addPage()
 
-extractMetadata = (text) ->
+exports.extractMetadata = (text) ->
   body = ""
   metadata = {}
 
@@ -267,13 +259,7 @@ extractMetadata = (text) ->
 
   {metadata: metadata, body: body}
 
-do ->
-  filename = "paper.md"
-  content  = fs.readFileSync(filename, 'utf8')
-  content  = extractMetadata(content)
-  body     = content.body
-  metadata = content.metadata
-
+exports.createMLADocument = (body, metadata, stream) ->
   tree = md.parse body
   tree.shift() # ignore 'markdown' first element
 
@@ -295,9 +281,19 @@ do ->
   doc.text(metadata.date,       _.extend({}, styles.default, styles.meta))
   doc.text(metadata.title,      _.extend({}, styles.default, styles.title))
 
-  doc.pipe fs.createWriteStream("#{metadata.title} by #{metadata.author}.pdf")
+  doc.pipe(stream)
   render doc, tree
   addPageNum(doc, metadata.lastName)
-  doc.flushPages()
-
+  # doc.flushPages()
   doc.end()
+
+# do ->
+#   # command line
+#   fs = require 'fs'
+#   filename = "paper.md"
+#   content  = fs.readFileSync(filename, 'utf8')
+#   content  = extractMetadata(content)
+#   body     = content.body
+#   metadata = content.metadata
+#   stream   = fs.createWriteStream("#{metadata.title} by #{metadata.author}.pdf")
+#   createDocument(body, metadata, stream)

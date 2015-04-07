@@ -3,155 +3,34 @@
 <head>
   <title></title>
   <style type="text/css">
-    *{
-      margin: 0;
-      padding: 0;
-      font-family: 'times new roman';
-      font-size: 12pt;
-    }
-
-    p{
-      line-height: 3em;
-    }
-
-    .body p{
-      text-indent: 0.5in;
-    }
-
-
-    @page{
-      size: 8.5in 11in;
-      margin: 1in;
-
-      counter-increment: page;
-      counter-reset: page 1;
-
-      @top-right {
-        /*content: counter(page);*/
-        content: "hi";
-      }
-    }
   </style>
 </head>
 <body>
 
-<script type="text/javascript" src="./js/jquery.js"></script>
-<script type="text/javascript" src="./js/jspdf.js"></script>
-<script type="text/javascript" src="./js/Deflate/adler32cs.js"></script>
-<script type="text/javascript" src="./js/FileSaver.js/FileSaver.js"></script>
-<script type="text/javascript" src="./js/Blob.js/BlobBuilder.js"></script>
-<script type="text/javascript" src="./js/jspdf.plugin.addimage.js"></script>
-<script type="text/javascript" src="./js/jspdf.plugin.standard_fonts_metrics.js"></script>
-<script type="text/javascript" src="./js/jspdf.plugin.split_text_to_size.js"></script>
-<script type="text/javascript" src="./js/jspdf.plugin.from_html.js"></script>
+<script type="text/javascript" src="./js/markdowntomla.js"></script>
+<!-- <script type="text/javascript" src="./js/jquery.js"></script> -->
+<!-- <script type="text/javascript" src="./js/jspdf.js"></script> -->
+<!-- <script type="text/javascript" src="./js/Deflate/adler32cs.js"></script> -->
+<!-- <script type="text/javascript" src="./js/FileSaver.js/FileSaver.js"></script> -->
+<!-- <script type="text/javascript" src="./js/Blob.js/BlobBuilder.js"></script> -->
 <script type="text/javascript">
-(function(API){
-  API.textWidth = function(txt) {
-    var fontSize = this.internal.getFontSize();
-    var pageWidth = this.internal.pageSize.width;
+# browser
+if false
+  blobStream = require 'blob-stream'
+  stream = blobStream()
+  # content  = ""
+  # content  = extractMetadata(content)
+  # body     = content.body
+  # metadata = content.metadata
+  createDocument(body, metadata, stream)
+  stream.on 'finish', ->
+    # get a blob you can do whatever you like with
+    # blob = stream.toBlob('application/pdf')
 
-    /* You multiply the unit width of your string by your font size and divide
-     * by the internal scale factor. The division is necessary
-     * for the case where you use units other than 'pt' in the constructor
-     * of jsPDF.
-    */
-    return this.getStringUnitWidth(txt)*fontSize/this.internal.scaleFactor;
-  }
-
-  API.space = function(length){
-    var charWidth = this.textWidth(" ");
-    var res = "";
-    for(var i=0; i<length / charWidth; i++)
-      res += " ";
-    return res;
-  }
-
-  API.textHeight = function(){
-    // doc.internal.getLineHeight() / doc.internal.scaleFactor
-    return 0.115;
-  }
-
-  API.txt = function(text, x, y, flags, angle, align){
-    y += this.textHeight();
-    this.text(text, x, y, flags, angle, align);
-  }
-
-  API.line = function(text, align){
-    this.y || (this.y = this.marginTop);
-
-    // doc.rect(this.marginLeft, this.y, this.textWidth(text), this.textHeight());
-
-    if(this.y > this.internal.pageSize.height - this.marginBottom){
-      this.y = this.marginTop;
-      this.addPage();
-      this.header();
-    }
-
-    this.y += this.textHeight();
-
-    var x = this.marginLeft;
-
-    if(align && align == 'center'){
-      x = doc.internal.pageSize.width/2;
-    }
-
-
-    this.text(text, x, this.y, align);
-
-    this.y += this.textHeight() * this.spacing;
-  }
-
-  API.p = function(text){
-    text = this.space(0.5) + text;
-
-    for(var line of this.splitTextToSize(text, doc.internal.pageSize.width - doc.marginLeft - doc.marginRight)){
-      this.line(line);
-    }
-  }
-})(jsPDF.API);
-
-var doc = new jsPDF('p', 'in', 'letter');
-doc.setLineWidth(0.01)
-doc.setFont("Times", "Roman");
-doc.setFontSize(12);
-
-doc.spacing = 2.6;
-doc.marginTop = 1;
-doc.marginLeft = 1;
-doc.marginRight = 1;
-doc.marginBottom = 1;
-
-// function pagenum(){
-//   doc.rightText(1, 0.5, "Angeli " + doc.page);
-//   doc.page++;
-// };
-// pagenum();
-
-// doc.text(1, 1, ["Elizabeth L. Angeli", "Professor Patricia Sullivan", "English 624", "12 February 2012"], {lineHeight: 28});
-
-// doc.centerText(0, 1, "Centered text")
-
-doc.page = 1;
-doc.header = function(){
-  doc.txt("Angeli " + doc.page, 8.5-1, 0.5, "right");
-  doc.page++;
-}
-
-doc.header()
-
-doc.line("Elizabeth L. Angeli");
-doc.line("Professor Patricia Sullivan");
-doc.line("English 624");
-doc.line("12 February 2012");
-doc.line("Toward a Recovery of Nineteenth Century Farming Handbooks", "center");
-doc.p("While researching texts like <i>Harry Potter</i> written about nineteenth century farming, I found a few authors who published books about the literature of nineteenth century farming, particularly agricultural journals, newspapers, pamphlets, and brochures. These authors often placed the farming literature they were studying into an historical context by discussing the important events in agriculture of the year in which the literature was published (see Demaree, for example). However, while these authors discuss journals, newspapers, pamphlets, and brochures, I could not find much discussion about another important source of farming knowledge: farming handbooks. My goal in this paper is to bring this source into the agricultural literature discussion by connecting three agricultural handbooks from the nineteenth century with nineteenth century agricultural history.");
-
-doc.p("To achieve this goal, I have organized my paper into four main sections, two of which have sub-sections. In the first section, I provide an account of three important events in nineteenth century agricultural history: population and technological changes, the distribution of scientific new knowledge, and farming's influence on education. In the second section, I discuss three nineteenth century farming handbooks in connection with the important events described in the first section. I end my paper with a third section that offers research questions that could be answered in future versions of this paper and conclude with a fourth section that discusses the importance of expanding this particular project. I also include an appendix after the Works Cited that contains images of the three handbooks I examined. Before I can begin the examination of the three handbooks, however, I need to provide an historical context in which the books were written, and it is to this that I now turn.");
-
-$("<iframe />").attr('src', doc.output('datauristring')).attr('width', '100%').attr('height', '500px').prependTo('body')
-
-
-// doc.save()
+    # or get a blob URL for display in the browser
+    url = stream.toBlobURL('application/pdf')
+    console.log url
+    # iframe.src = url
 </script>
 </body>
 </html>

@@ -1,8 +1,8 @@
-author: Elizabeth L. Genco
-instructor: Professor Patricia Sullivan
-course: English 624
-date: 12 February 2012
-title: Toward a Recovery of Nineteenth Century Farming Handbooks
+author: Christian Genco
+instructor: Professor Elisa Farrell
+course: ENGL 1341
+date: 6 April 2015
+title: An Allegory of the Human Condition
 
 While researching texts like *Harry Potter* and *Curious George* written about **nineteenth century farming**, I found a few "reliable" authors who published books about the literature of nineteenth century farming, particularly agricultural journals, newspapers, pamphlets, and brochures. These authors often placed the farming literature they were studying into an historical context by discussing the important events in agriculture of the year in which the literature was published (see Demaree, for example). However, while these authors discuss journals, newspapers, pamphlets, and brochures, I could not find much discussion about another important source of farming knowledge: farming handbooks. My goal in this paper is to bring this source into the agricultural literature discussion by connecting three agricultural handbooks from the nineteenth century with nineteenth century agricultural history.
 
