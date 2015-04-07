@@ -7,7 +7,7 @@ task :build do
   puts system("browserify -t coffeeify browser.app.coffee > js/markdowntomla.js")
 
   puts "building minified self-contained index.html"
-  html = File.read('index.html')
+  html = File.read('template.html')
   bundled = html.split("\n").map{|line|
     if line =~ /\<script.*src=\"(.*)\"/
       path = $1
