@@ -33,11 +33,13 @@ styles =
     font: 'Times-Bold'
   h1:
     align: 'center'
-  # h2:
-  #   font: 'Times-Italic'
-  # h3:
-  #   font: 'Times-Bold'
-  #   align: 'center'
+    font: 'Times-Bold'
+  h2:
+    font: 'Times-Bold'
+  h3:
+    font: 'Times-Bold'
+    inline: true
+    indent: 72/2
   # h4:
   #   font: 'Times-Italic'
   #   align: 'center'
@@ -123,7 +125,9 @@ class Node
             #   fragment.text = fragment.text.replace(/[\r\n]\s*/g, ' ')
 
             # console.log "rendering text. continued =", continued, 'attrs.continued =', @attrs.continued
-            doc.text fragment.text, _.extend({}, @style, {continued: continued or index < @content.length - 1})
+            text = fragment.text
+            text = text + " " if @style.inline
+            doc.text text, _.extend({}, @style, {continued: continued or index < @content.length - 1 or @style.inline})
           else
             # console.log "rendering fragment #{fragment.type}"
             fragment.render doc, index < @content.length - 1 and @type isnt 'bulletlist'
@@ -159,7 +163,7 @@ render = (doc, tree) ->
   while tree.length
     node = new Node(tree.shift())
     # console.log "node =", node
-    if node.type == "h1" && node.content?.first()?.text?.toLowerCase() == "works cited"
+    if node.type == "h1" && node.content?.first()?.text?.toLowerCase() == "references"
       onWorksCited = true
       node.style = _.extend({}, styles.default, styles.citationHeader)
 
@@ -239,7 +243,7 @@ createAPADocument = (body, metadata, stream) ->
   doc.addPage()
 
   # add abstract page
-  doc.text("Abstract", _.extend({}, styles.default, styles.h1))
+  doc.text("Abstract", _.extend({}, styles.default, styles.citationHeader))
   doc.text(metadata.abstract, _.extend({}, styles.default, {}))
   if metadata.keywords
     # TODO: more generic text writing function
@@ -252,8 +256,7 @@ createAPADocument = (body, metadata, stream) ->
 
   doc.text(metadata.title,       _.extend({}, styles.default, styles.title))
 
-  # doc.pipe(stream)
-  # render doc, tree
+  render doc, tree
   addAPAHeader(doc, metadata.runninghead)
   doc.end()
   doc
