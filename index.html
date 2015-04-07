@@ -93,10 +93,17 @@ editor.getSession().setMode("ace/mode/markdown")
 editor.getSession().setUseWrapMode(true)
 editor.renderer.setShowPrintMargin(false)
 
+# do we have anything saved?
+if essay = localStorage?.getItem('essay')
+  editor.getSession().setValue(essay)
+
 refreshTimer = null
 editor.getSession().on 'change', ->
   clearTimeout(refreshTimer)
-  refreshTimer = setTimeout(refresh, 1000)
+  refreshTimer = setTimeout(->
+    refresh()
+    localStorage?.setItem('essay', editor.getSession().getValue())
+  , 1000)
 
 window.refresh = ->
   stream   = blobStream()
