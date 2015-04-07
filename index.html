@@ -84,7 +84,6 @@ Wikipedia contributors. "Hacker News." Wikipedia, The Free Encyclopedia. Wikiped
 </pre>
 <iframe id="preview"></iframe>
 
-<script type="text/javascript" src="./js/jquery.js"></script>
 <script type="text/javascript" src="./js/markdowntomla.js"></script>
 <script type="text/javascript" src="./js/coffeescript.js"></script>
 <script type="text/javascript" src="./js/ace.js"></script>
@@ -96,7 +95,6 @@ Wikipedia contributors. "Hacker News." Wikipedia, The Free Encyclopedia. Wikiped
 <!-- <script type="text/javascript" src="./js/Blob.js/BlobBuilder.js"></script> -->
 <script type="text/coffeescript">
 console.log "coffeescript works!"
-$preview = $("#preview")
 
 window.editor = ace.edit("editor")
 editor.setTheme("ace/theme/textmate")
@@ -130,7 +128,7 @@ window.refresh = ->
     # or get a blob URL for display in the browser
     url = stream.toBlobURL('application/pdf')
     console.log url
-    $("#preview").attr('src', url)
+    document.getElementById('preview').src = url
 
 refresh()
 </script>
