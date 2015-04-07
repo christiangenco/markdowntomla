@@ -1,12 +1,64 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// browserify -t coffeeify browserifiable.js > markdowntomla.js
+var essay, refreshTimer;
 
-window.markdowntomla     = require('./markdowntomla.coffee');
-window.md                = require('markdown').markdown;
-window._                 = require('underscore');
-window.extractMetadata   = markdowntomla.extractMetadata;
+console.log("hi");
+
+window.markdowntomla = require('./markdowntomla.coffee');
+
+window.md = require('markdown').markdown;
+
+window._ = require('underscore');
+
+window.extractMetadata = markdowntomla.extractMetadata;
+
 window.createMLADocument = markdowntomla.createMLADocument;
-window.blobStream        = require('blob-stream');
+
+window.blobStream = require('blob-stream');
+
+window.editor = ace.edit("editor");
+
+editor.setTheme("ace/theme/textmate");
+
+editor.getSession().setMode("ace/mode/markdown");
+
+editor.getSession().setUseWrapMode(true);
+
+editor.renderer.setShowPrintMargin(false);
+
+if (essay = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem('essay') : void 0) {
+  editor.getSession().setValue(essay);
+}
+
+refreshTimer = null;
+
+editor.getSession().on('change', function() {
+  clearTimeout(refreshTimer);
+  return refreshTimer = setTimeout(function() {
+    refresh();
+    return typeof localStorage !== "undefined" && localStorage !== null ? localStorage.setItem('essay', editor.getSession().getValue()) : void 0;
+  }, 1000);
+});
+
+window.refresh = function() {
+  var body, content, metadata, stream;
+  stream = blobStream();
+  content = editor.getSession().getValue();
+  content = extractMetadata(content);
+  body = content.body;
+  metadata = content.metadata;
+  createMLADocument(body, metadata, stream);
+  return stream.on('finish', function() {
+    var url;
+    url = stream.toBlobURL('application/pdf');
+    console.log(url);
+    return document.getElementById('preview').src = url;
+  });
+};
+
+refresh();
+
+
+
 },{"./markdowntomla.coffee":2,"blob-stream":3,"markdown":14,"underscore":57}],2:[function(require,module,exports){
 var Node, PDFDocument, _, addPageNum, base, base1, codeBlocks, coffee, colors, lastType, md, render, styles;
 

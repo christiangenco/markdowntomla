@@ -8,27 +8,21 @@
       padding: 0;
     }
     #editor, #preview{
-      /*width: 49%;*/
-      /*height: 400px;*/
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      height: 100vh;
     }
 
     #editor {
-        margin: 0;
-        position: absolute;
-        top: 0;
-        bottom: 0;
         left: 0;
         right: 50%;
     }
 
     #preview{
-      position: absolute;
-      top: 0;
-      bottom: 0;
       left: 50%;
       right: 0;
-      width: 50%;
-      height: 100vh;
       border: 0;
     }
   </style>
@@ -84,53 +78,9 @@ Wikipedia contributors. "Hacker News." Wikipedia, The Free Encyclopedia. Wikiped
 </pre>
 <iframe id="preview"></iframe>
 
-<script type="text/javascript" src="./js/markdowntomla.js"></script>
-<script type="text/javascript" src="./js/coffeescript.js"></script>
 <script type="text/javascript" src="./js/ace.js"></script>
 <script type="text/javascript" src="./js/ace.mode-markdown.js"></script>
 <script type="text/javascript" src="./js/ace.theme-textmate.js"></script>
-<!-- <script type="text/javascript" src="./js/jspdf.js"></script> -->
-<!-- <script type="text/javascript" src="./js/Deflate/adler32cs.js"></script> -->
-<!-- <script type="text/javascript" src="./js/FileSaver.js/FileSaver.js"></script> -->
-<!-- <script type="text/javascript" src="./js/Blob.js/BlobBuilder.js"></script> -->
-<script type="text/coffeescript">
-console.log "coffeescript works!"
-
-window.editor = ace.edit("editor")
-editor.setTheme("ace/theme/textmate")
-editor.getSession().setMode("ace/mode/markdown")
-editor.getSession().setUseWrapMode(true)
-editor.renderer.setShowPrintMargin(false)
-
-# do we have anything saved?
-if essay = localStorage?.getItem('essay')
-  editor.getSession().setValue(essay)
-
-refreshTimer = null
-editor.getSession().on 'change', ->
-  clearTimeout(refreshTimer)
-  refreshTimer = setTimeout(->
-    refresh()
-    localStorage?.setItem('essay', editor.getSession().getValue())
-  , 1000)
-
-window.refresh = ->
-  stream   = blobStream()
-  content  = editor.getSession().getValue()
-  content  = extractMetadata(content)
-  body     = content.body
-  metadata = content.metadata
-  createMLADocument(body, metadata, stream)
-  stream.on 'finish', ->
-    # get a blob you can do whatever you like with
-    # blob = stream.toBlob('application/pdf')
-
-    # or get a blob URL for display in the browser
-    url = stream.toBlobURL('application/pdf')
-    console.log url
-    document.getElementById('preview').src = url
-
-refresh()
-</script>
+<script type="text/javascript" src="./js/markdowntomla.js"></script>
 </body>
 </html>
