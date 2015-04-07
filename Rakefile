@@ -3,7 +3,10 @@ require 'uglifier'
 task default: %w[build]
 
 task :build do
-  # puts system("browserify -t coffeeify browser.app.coffee > js/markdowntomla.js")
+  puts "browserifying"
+  puts system("browserify -t coffeeify browser.app.coffee > js/markdowntomla.js")
+
+  puts "building minified self-contained index.html"
   html = File.read('index.html')
   bundled = html.split("\n").map{|line|
     if line =~ /\<script.*src=\"(.*)\"/
@@ -14,5 +17,5 @@ task :build do
       line
     end
   }
-  File.open('index.min.html', 'w'){|f| f.puts bundled}
+  File.open('built/index.html', 'w'){|f| f.puts bundled}
 end
