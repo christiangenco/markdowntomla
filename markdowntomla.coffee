@@ -132,7 +132,7 @@ class Node
       child.style?.indent = @style.indent if @style.indent?
       child
 
-    console.log "content =", @content
+    # console.log "content =", @content
     # console.log "type =", @type
 
 
@@ -171,7 +171,7 @@ class Node
             # console.log "rendering text. continued =", continued, 'attrs.continued =', @attrs.continued
             doc.text fragment.text, _.extend({}, @style, {continued: continued or index < @content.length - 1})
           else
-            console.log "rendering fragment #{fragment.type}"
+            # console.log "rendering fragment #{fragment.type}"
             fragment.render doc, index < @content.length - 1 and @type isnt 'bulletlist'
 
           lastType = @type
@@ -202,7 +202,7 @@ render = (doc, tree) ->
   onWorksCited = false
   while tree.length
     node = new Node(tree.shift())
-    console.log "node =", node
+    # console.log "node =", node
     if node.type == "h1" && node.content?.first()?.text?.toLowerCase() == "works cited"
       onWorksCited = true
       node.style = _.extend({}, styles.default, styles.citationHeader)

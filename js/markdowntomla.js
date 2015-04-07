@@ -1,8 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var essay, refreshTimer;
 
-console.log("hi");
-
 window.markdowntomla = require('./markdowntomla.coffee');
 
 window.md = require('markdown').markdown;
@@ -50,8 +48,8 @@ window.refresh = function() {
   return stream.on('finish', function() {
     var url;
     url = stream.toBlobURL('application/pdf');
-    console.log(url);
-    return document.getElementById('preview').src = url;
+    document.getElementById('preview').src = url;
+    return document.title = metadata.title + " - MarkdownToMLA.com";
   });
 };
 
@@ -206,7 +204,6 @@ Node = (function() {
       }
       return results;
     }).call(this);
-    console.log("content =", this.content);
   }
 
   Node.prototype.setStyle = function(doc) {
@@ -245,7 +242,6 @@ Node = (function() {
               continued: continued || index < this.content.length - 1
             }));
           } else {
-            console.log("rendering fragment " + fragment.type);
             fragment.render(doc, index < this.content.length - 1 && this.type !== 'bulletlist');
           }
           lastType = this.type;
@@ -287,7 +283,6 @@ render = function(doc, tree) {
   onWorksCited = false;
   while (tree.length) {
     node = new Node(tree.shift());
-    console.log("node =", node);
     if (node.type === "h1" && ((ref = node.content) != null ? (ref1 = ref.first()) != null ? (ref2 = ref1.text) != null ? ref2.toLowerCase() : void 0 : void 0 : void 0) === "works cited") {
       onWorksCited = true;
       node.style = _.extend({}, styles["default"], styles.citationHeader);

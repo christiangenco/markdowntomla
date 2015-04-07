@@ -1,7 +1,5 @@
 # browserify -t coffeeify browser.app.coffee > js/markdowntomla.js
 
-console.log "hi"
-
 window.markdowntomla     = require('./markdowntomla.coffee')
 window.md                = require('markdown').markdown
 window._                 = require('underscore')
@@ -40,7 +38,8 @@ window.refresh = ->
 
     # or get a blob URL for display in the browser
     url = stream.toBlobURL('application/pdf')
-    console.log url
     document.getElementById('preview').src = url
+
+    document.title = "#{metadata.title} - MarkdownToMLA.com"
 
 refresh()
