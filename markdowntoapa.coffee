@@ -7,7 +7,7 @@ Array::first ?= -> @[0]
 
 Array::last ?= -> @[@length - 1]
 
-process.chdir(__dirname)
+# process.chdir(__dirname)
 
 # style definitions for markdown
 styles =
@@ -24,8 +24,7 @@ styles =
     indent: 72/2
   blockquote:
     indent: 0
-    marginLeft: 72
-    color: 'red'
+    marginLeft: 72/2
     font: 'Times-Italic'
   em:
     font: 'Times-Italic'
@@ -264,14 +263,14 @@ createAPADocument = (body, metadata, stream) ->
 exports.extractMetadata   = extractMetadata
 exports.createAPADocument = createAPADocument
 
-do ->
-  # command line
-  fs = require 'fs'
-  filename = "apa_paper.md"
-  content  = fs.readFileSync(filename, 'utf8')
-  content  = extractMetadata(content)
-  body     = content.body
-  metadata = content.metadata
-  doc      = createAPADocument(body, metadata)
-  stream   = fs.createWriteStream("#{metadata.title.replace("\n", ' ')} by #{metadata.author}.pdf")
-  doc.pipe(stream)
+# do ->
+#   # command line
+#   fs = require 'fs'
+#   filename = "apa_paper.md"
+#   content  = fs.readFileSync(filename, 'utf8')
+#   content  = extractMetadata(content)
+#   body     = content.body
+#   metadata = content.metadata
+#   doc      = createAPADocument(body, metadata)
+#   stream   = fs.createWriteStream("#{metadata.title.replace("\n", ' ')} by #{metadata.author}.pdf")
+#   doc.pipe(stream)

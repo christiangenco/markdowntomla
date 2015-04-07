@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MarkdowntoAPA.com</title>
+  <meta content="Markdown to APA" name="og:site_name" />
+  <meta property='og:type' name='og:type' content='website' />
+  <meta property='og:title' name='og:title' content='Markdown to APA' />
+  <meta property='description' name='description' content='Convert markdown to APA formatted PDFs. Makes writing school papers much easier.' />
+  <meta property='og:description' name='og:description' content='Convert markdown to APA formatted PDFs. Makes writing school papers much easier.' />
+  <meta property='og:url' name='og:url' content='http://markdowntoapa.com/' />
+  <meta property='og:image' name='og:image' content='http://i.imgur.com/JwuUAy9.png' />
+
+  <style type="text/css">
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    #editor, #preview{
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      height: 100vh;
+    }
+
+    #editor {
+        left: 0;
+        right: 50%;
+    }
+
+    #preview{
+      left: 50%;
+      right: 0;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+<pre id="editor">
+author: Christian R. Genco
+institution: Southern Methodist University
+title: How to use MarkdownToAPA.com to\nWrite APA Papers Easier
+runninghead: WRITE APA PAPERS ON MARKDOWNTOAPA.COM
+abstract: This paper shows you how to use the website you're viewing it on, MarkdownToAPA.com, to write APA papers in markdown and automatically format them really prettily as a downloadable/printable PDF document. It's pretty meta, yo.
+keywords: game changing, next facebook, #thedress, document formats are tedious
+
+Hi! Welcome to MarkdownToAPA.com - a simple website with an even simpler purpose: making it less annoying to generate APA-formatted papers.
+
+The stuff on the left is editable, and automatically generates the PDF on the right, which can be downloaded and emailed to your professor, or printed out and made into a paper airplane, or whatever else you can do with a PDF. Everything you write is automatically saved as soon as you pause your furious typing, but it's still a good idea to copy and paste it somewhere else every once in a while as a backup. You can even use this website without being connected to the internet!
+
+The special format on the left is called Markdown. You can easily make things *italic* and **bold**, as well as quote important people:
+
+> Writing MLA-formatted essays is much easier with markdowntomla.com. I use it all the time when I write essays to foreign dictators, as well as to my wife when I need her to pick up something from the store on the way home (we're a very formal family). (Obama)
+
+You can also play around with headings:
+
+# Important Stuff
+
+I'm going to talk about really important stuff here.
+
+## Important Stuff I am Wearing
+
+There's a lot of important stuff out there, but the stuff I'm wearing is a pretty large subset of it. Let's further explore the topic of my clothing.
+
+### Pants
+
+My belt holds my pants up, but my belt loops hold my belt up. Who's the real hero?
+
+### Socks
+
+Feet can get pretty cold without an external layer of cloth to hold in their heat. I'm not keeping score or anything, but I'd say socks rank pretty high up there.
+
+# Non-important Stuff
+
+Actually, most stuff is pretty important. I'll leave this section blank. Except for, of course, the previous sentence.
+
+Need a page break? Just type three dashes on an empty line.
+
+---
+
+Whoa, so much more room on this page. There are two things left to cover: the special **author**, **institution**, **runninghead**, **title**, **abstract**, and **keywords** section at the top; and the work's cited page. The former is used for the MLA heading, numbering the pages, and naming your downloaded PDF. The later is pretty self explanatory (look at the markdown source code at the bottom of this essay).
+
+For help generating those citations, check out bibme.org, and citationmachine.net. Be careful citing Wikipedia, but there's also a handy "cite this page" button on every page.
+
+---
+
+# Conclusions and Future Study
+
+Get out there and research some cool things to write about! Or just start editing the markdown on the left. Either way, let me know if you have any suggestions for improvement on twitter @cgenco, or through my website at http://christian.gen.co (where I also have a lecture on how to go to college for free, and other websites I've made).
+
+Want this for MLA? Head over to http://MarkdownToMLA.com
+
+---
+
+# References
+
+Egan, G. (1994). Permutation city. New York: HarperPrism.
+
+Hacker News. (2015, March 18). In *Wikipedia, The Free Encyclopedia*. Retrieved 08:46, April 7, 2015, from http://en.wikipedia.org/w/index.php?title=Hacker_News&oldid=651986110
+
+Rowling, J. (1999). *Harry Potter and the Chamber of Secrets*. New York: Arthur A. Levine Books.
+</pre>
+<iframe id="preview"></iframe>
+
+<script type="text/javascript" src="./js/ace.js"></script>
+<script type="text/javascript" src="./js/ace.mode-markdown.js"></script>
+<script type="text/javascript" src="./js/ace.theme-textmate.js"></script>
+<script type="text/javascript" src="./js/markdowntoapa.js"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61649905-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
